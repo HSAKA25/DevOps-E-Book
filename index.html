@@ -198,7 +198,8 @@
       transition: all 0.2s ease;
     }
 
-    .pill-btn.pill-btn-cover {
+    .pill-btn.pill-btn-cover,
+    .pill-btn.pill-btn-toc {
       width: auto;
       padding: 0 9px;
       border-radius: 14px;
@@ -514,6 +515,163 @@
     .cover-start-btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 0 18px rgba(0, 180, 216, 0.6);
+    }
+
+    /* =====================================================================
+       TABLE OF CONTENTS (TOC) STYLING
+       ===================================================================== */
+    .toc-header-block {
+      margin-bottom: 12px;
+    }
+
+    .toc-top-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(2, 132, 199, 0.08);
+      border: 1px solid rgba(2, 132, 199, 0.25);
+      color: var(--cyan-600);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .toc-main-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      letter-spacing: -0.01em;
+    }
+
+    .toc-subtitle {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+      margin-top: 3px;
+      margin-bottom: 0;
+    }
+
+    .toc-directory {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .toc-chapter-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-left: 4px solid var(--navy-700);
+      border-radius: var(--radius-md);
+      padding: 9px 14px;
+      transition: all 0.2s ease;
+    }
+
+    .toc-chapter-card:hover {
+      border-color: var(--cyan-400);
+      background: #f0f9ff;
+      box-shadow: 0 2px 10px rgba(0, 180, 216, 0.08);
+    }
+
+    .toc-chapter-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .toc-ch-badge {
+      background: var(--navy-800);
+      color: var(--cyan-400);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .toc-chapter-link {
+      color: var(--navy-900);
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      flex-shrink: 0;
+      transition: color 0.15s ease;
+    }
+
+    .toc-chapter-link:hover {
+      color: var(--cyan-600);
+      text-decoration: underline;
+    }
+
+    .toc-leader-line {
+      flex: 1;
+      border-bottom: 1.5px dotted var(--slate-300);
+      margin: 0 6px;
+      min-width: 16px;
+    }
+
+    .toc-page-badge {
+      background: var(--slate-200);
+      color: var(--navy-900);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+      border: 1px solid var(--slate-300);
+      transition: all 0.15s ease;
+    }
+
+    .toc-page-badge:hover {
+      background: var(--cyan-500);
+      color: var(--white);
+      border-color: var(--cyan-500);
+    }
+
+    .toc-subsections-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 14px;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--slate-200);
+    }
+
+    .toc-sub-link {
+      color: var(--slate-600);
+      font-size: 0.74rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .toc-sub-link:hover {
+      color: var(--cyan-600);
+      text-decoration: underline;
+    }
+
+    .toc-nav-prompt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--cyan-600);
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      margin-top: 10px;
     }
 
     /* Running Header & Running Footer on each page */
@@ -1588,9 +1746,14 @@
       .conclusion-summary-box,
       .pillars-pill-box,
       .references-card,
+      .toc-chapter-card,
       .submission-badge-bar {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+      }
+
+      .toc-nav-prompt {
+        display: none !important;
       }
 
       /* Maintain readability of links without huge blue overrides */
@@ -1651,6 +1814,17 @@
         align-items: flex-start;
         gap: 8px;
       }
+      .toc-chapter-main {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .toc-leader-line {
+        display: none;
+      }
+      .toc-subsections-list {
+        flex-direction: column;
+        gap: 4px;
+      }
     }
   </style>
 </head>
@@ -1684,12 +1858,13 @@
       <nav class="nav-controls" aria-label="E-book Navigation">
         <!-- Page Indicator Pills -->
         <div class="page-pills" id="pagePills">
-          <button class="pill-btn pill-btn-cover active" data-target="0" title="Jump to Cover Page">Cover</button>
-          <button class="pill-btn" data-target="1" title="Jump to Page 1">1</button>
-          <button class="pill-btn" data-target="2" title="Jump to Page 2">2</button>
-          <button class="pill-btn" data-target="3" title="Jump to Page 3">3</button>
-          <button class="pill-btn" data-target="4" title="Jump to Page 4">4</button>
-          <button class="pill-btn" data-target="5" title="Jump to Page 5">5</button>
+          <button class="pill-btn pill-btn-cover active" data-target="page-cover" title="Jump to Cover Page">Cover</button>
+          <button class="pill-btn pill-btn-toc" data-target="page-toc" title="Jump to Table of Contents">TOC</button>
+          <button class="pill-btn" data-target="page-1" title="Jump to Page 1">1</button>
+          <button class="pill-btn" data-target="page-2" title="Jump to Page 2">2</button>
+          <button class="pill-btn" data-target="page-3" title="Jump to Page 3">3</button>
+          <button class="pill-btn" data-target="page-4" title="Jump to Page 4">4</button>
+          <button class="pill-btn" data-target="page-5" title="Jump to Page 5">5</button>
         </div>
 
         <button class="btn-action btn-secondary" id="prevBtn" disabled title="Previous Page">
@@ -1823,9 +1998,109 @@
 
       <footer class="cover-page-footer">
         <span class="cover-edition-text">Digital Academic Edition &bull; Standalone Monograph</span>
-        <button class="cover-start-btn" onclick="document.getElementById('page-1').scrollIntoView({behavior:'smooth', block:'start'});" title="Start reading Chapter 1">
-          Start Reading &darr;
+        <button class="cover-start-btn" title="View Table of Contents">
+          Explore Contents &darr;
         </button>
+      </footer>
+    </article>
+
+    <!-- =================================================================
+         TABLE OF CONTENTS
+         ================================================================= -->
+    <article class="ebook-page active-page" id="page-toc" data-page="toc">
+      <header class="page-header-running">
+        <span class="running-title">CIA 1 — Digital Book &bull; Software Engineering</span>
+      </header>
+
+      <div class="page-body">
+        <div class="toc-header-block">
+          <div class="toc-top-badge">Course Syllabus &amp; Chapter Directory</div>
+          <h2 class="toc-main-title"><span class="heading-accent"></span>Table of Contents</h2>
+          <p class="toc-subtitle">Comprehensive roadmap of the DevOps Model in Software Engineering monograph</p>
+        </div>
+
+        <div class="toc-directory">
+          <!-- Chapter 1 Entry -->
+          <div class="toc-chapter-card">
+            <div class="toc-chapter-main">
+              <span class="toc-ch-badge">CH 01</span>
+              <a href="#page-1" class="toc-chapter-link">Introduction to the DevOps Model</a>
+              <span class="toc-leader-line"></span>
+              <a href="#page-1" class="toc-page-badge" title="Go to Page 1">Page 1</a>
+            </div>
+            <div class="toc-subsections-list">
+              <a href="#ch1-objectives" class="toc-sub-link">&bull; Primary Objectives of the DevOps Paradigm</a>
+              <a href="#ch1-wall-of-confusion" class="toc-sub-link">&bull; The Core Problem DevOps Resolves: The &ldquo;Wall of Confusion&rdquo;</a>
+            </div>
+          </div>
+
+          <!-- Chapter 2 Entry -->
+          <div class="toc-chapter-card">
+            <div class="toc-chapter-main">
+              <span class="toc-ch-badge">CH 02</span>
+              <a href="#page-2" class="toc-chapter-link">Understanding the DevOps Lifecycle</a>
+              <span class="toc-leader-line"></span>
+              <a href="#page-2" class="toc-page-badge" title="Go to Page 2">Page 2</a>
+            </div>
+            <div class="toc-subsections-list">
+              <a href="#ch2-stages" class="toc-sub-link">&bull; The 8 Iterative Phases: Plan, Code, Build, Test, Release, Deploy, Operate, Monitor</a>
+              <a href="#ch2-casestudy" class="toc-sub-link">&bull; Real-World Case Study: One-Click Checkout for an E-Commerce Application</a>
+            </div>
+          </div>
+
+          <!-- Chapter 3 Entry -->
+          <div class="toc-chapter-card">
+            <div class="toc-chapter-main">
+              <span class="toc-ch-badge">CH 03</span>
+              <a href="#page-3" class="toc-chapter-link">The Practices Behind DevOps</a>
+              <span class="toc-leader-line"></span>
+              <a href="#page-3" class="toc-page-badge" title="Go to Page 3">Page 3</a>
+            </div>
+            <div class="toc-subsections-list">
+              <a href="#ch3-practices" class="toc-sub-link">&bull; Core Technical Practices: CI, CD, IaC, Microservices, Shift-Left QA &amp; Observability</a>
+              <a href="#ch3-technologies" class="toc-sub-link">&bull; Representative DevOps Technologies (Comparison Matrix)</a>
+            </div>
+          </div>
+
+          <!-- Chapter 4 Entry -->
+          <div class="toc-chapter-card">
+            <div class="toc-chapter-main">
+              <span class="toc-ch-badge">CH 04</span>
+              <a href="#page-4" class="toc-chapter-link">Why DevOps Matters: Benefits &amp; Realities</a>
+              <span class="toc-leader-line"></span>
+              <a href="#page-4" class="toc-page-badge" title="Go to Page 4">Page 4</a>
+            </div>
+            <div class="toc-subsections-list">
+              <a href="#ch4-benefits" class="toc-sub-link">&bull; Key Engineering Benefits &amp; Industry DORA Metrics</a>
+              <a href="#ch4-challenges" class="toc-sub-link">&bull; Common Adoption Challenges &amp; Pitfalls</a>
+              <a href="#ch4-bestpractices" class="toc-sub-link">&bull; Best Practices for Successful DevOps Implementation</a>
+            </div>
+          </div>
+
+          <!-- Chapter 5 Entry -->
+          <div class="toc-chapter-card">
+            <div class="toc-chapter-main">
+              <span class="toc-ch-badge">CH 05</span>
+              <a href="#page-5" class="toc-chapter-link">Conclusion and References</a>
+              <span class="toc-leader-line"></span>
+              <a href="#page-5" class="toc-page-badge" title="Go to Page 5">Page 5</a>
+            </div>
+            <div class="toc-subsections-list">
+              <a href="#ch5-synthesis" class="toc-sub-link">&bull; Academic Synthesis &amp; The Three Pillars of DevOps</a>
+              <a href="#ch5-references" class="toc-sub-link">&bull; Academic References &amp; Authoritative Sources</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="toc-nav-prompt">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span>Select any chapter or subsection above to navigate directly to that topic.</span>
+        </div>
+      </div>
+
+      <footer class="page-footer-running">
+        <span class="running-sub">The DevOps Model in Software Engineering</span>
+        <span class="page-number-box">Table of Contents</span>
       </footer>
     </article>
 
@@ -1932,7 +2207,7 @@
         </section>
 
         <!-- The Core Objectives Grid -->
-        <section>
+        <section id="ch1-objectives">
           <h3 class="sub-heading">Primary Objectives of the DevOps Paradigm</h3>
           <div class="grid-3col" style="margin-top: 6px;">
             <div class="card">
@@ -1960,7 +2235,7 @@
         </section>
 
         <!-- Problem DevOps Addresses: Wall of Confusion -->
-        <section>
+        <section id="ch1-wall-of-confusion">
           <h3 class="sub-heading">The Core Problem DevOps Resolves: The "Wall of Confusion"</h3>
           <p class="body-text" style="margin-top: 4px;">
             Historically, software organizations suffered from an adversarial disconnect: development teams were evaluated on shipping features quickly, whereas operations teams were incentivized to preserve production stability by resisting change <a href="#ref-2" class="cite">[2]</a>.
@@ -2097,7 +2372,7 @@
         </div>
 
         <!-- 8 Stages Detailed Descriptions Grid with Sequential Transition Reveal -->
-        <div class="lifecycle-stages-grid">
+        <div class="lifecycle-stages-grid" id="ch2-stages">
           <div class="stage-pill">
             <span class="stage-pill-head">1. Plan</span>
             <span class="stage-pill-body">Define user stories, epics, priorities, and sprint backlogs using Agile methodologies and Scrum planning boards.</span>
@@ -2133,7 +2408,7 @@
         </div>
 
         <!-- Real-World Engineering Example: Online Shopping Cart -->
-        <section class="app-example-box">
+        <section class="app-example-box" id="ch2-casestudy">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <h3 class="sub-heading" style="color:var(--navy-900); font-size:0.95rem;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -2188,7 +2463,7 @@
         </section>
 
         <!-- Core Practices Grid -->
-        <div class="practices-grid">
+        <div class="practices-grid" id="ch3-practices">
           <div class="practice-card">
             <div class="practice-title">
               <span>1. Continuous Integration (CI)</span>
@@ -2260,7 +2535,7 @@
         </div>
 
         <!-- Technology Examples Table -->
-        <section>
+        <section id="ch3-technologies">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 2px;">
             <h3 class="sub-heading" style="font-size: 0.95rem;">Representative DevOps Technologies</h3>
             <span style="font-size: 0.7rem; color: var(--slate-500); font-style: italic;">Illustrative tool landscape (organizations select tools according to their operational needs)</span>
@@ -2334,7 +2609,7 @@
         </section>
 
         <!-- Key Benefits Grid -->
-        <section>
+        <section id="ch4-benefits">
           <h3 class="sub-heading">Key Engineering Benefits</h3>
           <div class="benefits-grid" style="margin-top: 4px;">
             <div class="benefit-item">
@@ -2383,7 +2658,7 @@
         </section>
 
         <!-- Common Challenges -->
-        <section class="challenges-box">
+        <section class="challenges-box" id="ch4-challenges">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <h3 class="sub-heading" style="color:#78350f; font-size:0.92rem;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -2415,7 +2690,7 @@
         </section>
 
         <!-- Best Practices for Successful DevOps -->
-        <section>
+        <section id="ch4-bestpractices">
           <h3 class="sub-heading">Best Practices for Successful DevOps Implementation</h3>
           <ol class="best-practices-ordered" style="margin-top: 4px;">
             <li class="bp-item">
@@ -2468,7 +2743,7 @@
 
         <!-- Academic Conclusion Split -->
         <div class="conclusion-grid">
-          <div class="conclusion-summary-box">
+          <div class="conclusion-summary-box" id="ch5-synthesis">
             <h3 class="sub-heading" style="font-size:0.95rem; margin-bottom:4px;">Academic Synthesis</h3>
             <p class="body-text" style="font-size: 0.81rem; line-height:1.45;">
               The <strong>DevOps model</strong> has redefined contemporary software engineering by establishing a structured, collaborative relationship between software developers and IT operations personnel. By integrating Agile methodologies (such as iterative Scrum sprint cycles) with automated continuous integration, continuous delivery, and infrastructure as code, organizations eliminate historical departmental silos, shorten deployment lead times, and significantly lower change failure rates <a href="#ref-1" class="cite">[1]</a>, <a href="#ref-2" class="cite">[2]</a>.
@@ -2493,7 +2768,7 @@
         </div>
 
         <!-- Academic References Section -->
-        <section class="references-card">
+        <section class="references-card" id="ch5-references">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <h3 class="sub-heading" style="font-size:0.95rem; color:var(--navy-900);">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path></svg>
@@ -2559,8 +2834,17 @@
     (function () {
       "use strict";
 
-      const TOTAL_PAGES = 5;
-      let currentPage = 0;
+      // Ordered list of page IDs representing the reader sequence
+      const PAGE_IDS = [
+        "page-cover",
+        "page-toc",
+        "page-1",
+        "page-2",
+        "page-3",
+        "page-4",
+        "page-5"
+      ];
+      let currentPageIndex = 0;
       let isPagedMode = false;
 
       // DOM Elements
@@ -2576,84 +2860,85 @@
       /**
        * Updates UI indicators (pills, buttons, progress bar)
        */
-      function updateUI(pageNum) {
-        currentPage = pageNum;
+      function updateUI(pageIndex) {
+        currentPageIndex = Math.max(0, Math.min(pageIndex, PAGE_IDS.length - 1));
+        const activeId = PAGE_IDS[currentPageIndex];
 
-        // Progress bar width (0 -> 10%, 1 -> 28%, ..., 5 -> 100%)
-        const progressPercent = Math.max(10, Math.round((currentPage / TOTAL_PAGES) * 100));
+        // Progress bar width
+        const progressPercent = Math.max(8, Math.round((currentPageIndex / (PAGE_IDS.length - 1)) * 100));
         if (progressBar) {
           progressBar.style.width = progressPercent + "%";
         }
 
         // Active pill button
         pillButtons.forEach((btn) => {
-          const target = parseInt(btn.getAttribute("data-target"), 10);
-          if (target === currentPage) {
-            btn.classList.add("active");
-          } else {
-            btn.classList.remove("active");
-          }
+          const target = btn.getAttribute("data-target");
+          btn.classList.toggle("active", target === activeId);
         });
 
         // Prev / Next button states
         if (prevBtn) {
-          prevBtn.disabled = currentPage === 0;
+          prevBtn.disabled = (currentPageIndex === 0);
         }
         if (nextBtn) {
-          nextBtn.disabled = currentPage === TOTAL_PAGES;
+          nextBtn.disabled = (currentPageIndex === PAGE_IDS.length - 1);
         }
 
         // In paged mode, activate the corresponding page card
         if (isPagedMode) {
           pages.forEach((page) => {
-            const pageId = parseInt(page.getAttribute("data-page"), 10);
-            if (pageId === currentPage) {
-              page.classList.add("active-page");
-            } else {
-              page.classList.remove("active-page");
-            }
+            page.classList.toggle("active-page", page.id === activeId);
           });
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
       }
 
       /**
-       * Switch to a specific page
+       * Switch to a specific page index
        */
-      function goToPage(targetPage) {
-        if (targetPage < 0 || targetPage > TOTAL_PAGES) return;
+      function goToPageIndex(targetIndex) {
+        if (targetIndex < 0 || targetIndex >= PAGE_IDS.length) return;
+        const targetId = PAGE_IDS[targetIndex];
 
         if (isPagedMode) {
-          updateUI(targetPage);
+          updateUI(targetIndex);
         } else {
-          // Continuous scroll mode: scroll to element
-          const targetId = targetPage === 0 ? "page-cover" : "page-" + targetPage;
           const targetElement = document.getElementById(targetId);
           if (targetElement) {
             targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
-            updateUI(targetPage);
+            updateUI(targetIndex);
           }
+        }
+      }
+
+      /**
+       * Switch to a specific page by DOM ID
+       */
+      function goToPageId(id) {
+        const index = PAGE_IDS.indexOf(id);
+        if (index !== -1) {
+          goToPageIndex(index);
         }
       }
 
       // Event Listeners for Pill Buttons
       pillButtons.forEach((btn) => {
         btn.addEventListener("click", function () {
-          const target = parseInt(this.getAttribute("data-target"), 10);
-          goToPage(target);
+          const targetId = this.getAttribute("data-target");
+          goToPageId(targetId);
         });
       });
 
       // Prev and Next Button Handlers
       if (prevBtn) {
         prevBtn.addEventListener("click", () => {
-          if (currentPage > 0) goToPage(currentPage - 1);
+          if (currentPageIndex > 0) goToPageIndex(currentPageIndex - 1);
         });
       }
 
       if (nextBtn) {
         nextBtn.addEventListener("click", () => {
-          if (currentPage < TOTAL_PAGES) goToPage(currentPage + 1);
+          if (currentPageIndex < PAGE_IDS.length - 1) goToPageIndex(currentPageIndex + 1);
         });
       }
 
@@ -2665,14 +2950,14 @@
             viewport.classList.add("paged-mode");
             viewModeToggle.textContent = "Continuous View";
             viewModeToggle.title = "Switch to continuous scrolling view";
-            updateUI(currentPage);
+            updateUI(currentPageIndex);
           } else {
             viewport.classList.remove("paged-mode");
             viewModeToggle.textContent = "Reader View";
             viewModeToggle.title = "Switch to single-page reader view";
             // Make all pages visible in continuous view
             pages.forEach((p) => p.classList.add("active-page"));
-            const targetId = currentPage === 0 ? "page-cover" : "page-" + currentPage;
+            const targetId = PAGE_IDS[currentPageIndex];
             const targetElement = document.getElementById(targetId);
             if (targetElement) {
               targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2681,17 +2966,21 @@
         });
       }
 
-      // Keyboard navigation (ArrowLeft, ArrowRight, PageUp, PageDown, 0-5, C keys)
+      // Keyboard navigation
       window.addEventListener("keydown", (e) => {
         if (e.target && ["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
         if (e.key === "ArrowRight" || e.key === "PageDown") {
-          if (currentPage < TOTAL_PAGES) goToPage(currentPage + 1);
+          if (currentPageIndex < PAGE_IDS.length - 1) goToPageIndex(currentPageIndex + 1);
         } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-          if (currentPage > 0) goToPage(currentPage - 1);
-        } else if (["0", "1", "2", "3", "4", "5"].includes(e.key)) {
-          goToPage(parseInt(e.key, 10));
-        } else if (e.key.toLowerCase() === "c") {
-          goToPage(0);
+          if (currentPageIndex > 0) goToPageIndex(currentPageIndex - 1);
+        } else if (["1", "2", "3", "4", "5"].includes(e.key)) {
+          // Keys 1-5 map to pages 1-5 (indices 2 to 6)
+          const targetIndex = parseInt(e.key, 10) + 1;
+          goToPageIndex(targetIndex);
+        } else if (e.key.toLowerCase() === "c" || e.key === "0") {
+          goToPageIndex(0); // Cover
+        } else if (e.key.toLowerCase() === "t") {
+          goToPageIndex(1); // Table of Contents
         }
       });
 
@@ -2704,17 +2993,16 @@
           const top = page.offsetTop;
           const bottom = top + page.offsetHeight;
           if (scrollPosition >= top && scrollPosition < bottom) {
-            const pageNum = parseInt(page.getAttribute("data-page"), 10);
-            if (pageNum !== currentPage) {
-              currentPage = pageNum;
+            const idx = PAGE_IDS.indexOf(page.id);
+            if (idx !== -1 && idx !== currentPageIndex) {
+              currentPageIndex = idx;
               pillButtons.forEach((btn) => {
-                const target = parseInt(btn.getAttribute("data-target"), 10);
-                btn.classList.toggle("active", target === currentPage);
+                btn.classList.toggle("active", btn.getAttribute("data-target") === page.id);
               });
-              if (prevBtn) prevBtn.disabled = currentPage === 0;
-              if (nextBtn) nextBtn.disabled = currentPage === TOTAL_PAGES;
+              if (prevBtn) prevBtn.disabled = (currentPageIndex === 0);
+              if (nextBtn) nextBtn.disabled = (currentPageIndex === PAGE_IDS.length - 1);
               if (progressBar) {
-                progressBar.style.width = Math.max(10, Math.round((currentPage / TOTAL_PAGES) * 100)) + "%";
+                progressBar.style.width = Math.max(8, Math.round((currentPageIndex / (PAGE_IDS.length - 1)) * 100)) + "%";
               }
             }
             break;
@@ -2722,10 +3010,54 @@
         }
       });
 
+      // Handle in-page anchor navigation (TOC links, footnotes, citations)
+      document.addEventListener("click", (e) => {
+        const anchor = e.target.closest("a[href^='#']");
+        if (!anchor) return;
+        const targetId = anchor.getAttribute("href").slice(1);
+        if (!targetId) return;
+
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return;
+
+        // If target is an entire page
+        if (PAGE_IDS.includes(targetId)) {
+          e.preventDefault();
+          goToPageId(targetId);
+          return;
+        }
+
+        // If target is an element inside one of the pages
+        const parentPage = targetEl.closest(".ebook-page");
+        if (parentPage) {
+          e.preventDefault();
+          const pageIndex = PAGE_IDS.indexOf(parentPage.id);
+          if (pageIndex !== -1) {
+            if (isPagedMode) {
+              updateUI(pageIndex);
+              setTimeout(() => {
+                targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 60);
+            } else {
+              targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+              updateUI(pageIndex);
+            }
+          }
+        }
+      });
+
+      // Cover Page Action Button
+      const coverStartBtn = document.querySelector(".cover-start-btn");
+      if (coverStartBtn) {
+        coverStartBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          goToPageId("page-toc");
+        });
+      }
+
       // Print / Save as PDF handler
       if (printBtn) {
         printBtn.addEventListener("click", () => {
-          // Pre-print: ensure all pages are rendered cleanly
           window.print();
         });
       }
