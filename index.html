@@ -1,0 +1,2759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The DevOps Model in Software Engineering — Digital E-Book (CIA 1)</title>
+  <style>
+    /* =====================================================================
+       ROOT DESIGN TOKENS & TYPOGRAPHY
+       Palette: Deep Navy (#0b132b, #1c2541), White (#ffffff), Slate (#f8fafc),
+       Cyan (#00b4d8, #0ea5e9), Emerald (#10b981), Amber (#f59e0b)
+       ===================================================================== */
+    :root {
+      --navy-900: #0a1128;
+      --navy-800: #101f42;
+      --navy-700: #1c2d5a;
+      --navy-600: #2a437e;
+      --cyan-600: #0284c7;
+      --cyan-500: #00b4d8;
+      --cyan-400: #38bdf8;
+      --cyan-100: #e0f2fe;
+      --cyan-50:  #f0f9ff;
+      --emerald-600: #059669;
+      --emerald-500: #10b981;
+      --emerald-100: #d1fae5;
+      --emerald-50:  #ecfdf5;
+      --amber-600: #d97706;
+      --amber-100: #fef3c7;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50:  #f8fafc;
+      --white:     #ffffff;
+      
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+      --shadow-page: 0 12px 28px -5px rgba(15, 23, 42, 0.15), 0 4px 10px -2px rgba(15, 23, 42, 0.08);
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 15px;
+      scroll-behavior: smooth;
+      background-color: #0b1329;
+      color: var(--slate-800);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: radial-gradient(circle at 50% 0%, #152243 0%, #0a1128 100%);
+    }
+
+    /* =====================================================================
+       TOP APP HEADER & INTERACTIVE CONTROLS (SCREEN ONLY)
+       ===================================================================== */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      background: rgba(10, 17, 40, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.22);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 20%;
+      background: linear-gradient(90deg, var(--cyan-400), var(--emerald-500));
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--cyan-500), var(--navy-800));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px rgba(0, 180, 216, 0.4);
+      transition: transform 0.3s ease;
+    }
+
+    .brand-icon:hover {
+      transform: rotate(6deg) scale(1.05);
+    }
+
+    .brand-text h1 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 0.74rem;
+      color: var(--cyan-400);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-text p .badge-reg {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7dd3fc;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .page-pills {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px 6px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .pill-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--slate-300);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .pill-btn.pill-btn-cover {
+      width: auto;
+      padding: 0 9px;
+      border-radius: 14px;
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+    }
+
+    .pill-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--white);
+    }
+
+    .pill-btn.active {
+      background: var(--cyan-500);
+      color: var(--navy-900);
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan-500), #0096c7);
+      color: var(--navy-900);
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0, 180, 216, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--cyan-400), var(--cyan-500));
+      box-shadow: 0 4px 14px rgba(0, 180, 216, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .view-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--cyan-400);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .view-toggle:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--white);
+    }
+
+    /* =====================================================================
+       E-BOOK CONTAINER & A4 PAGE SIMULATION (SCREEN & PRINT)
+       ===================================================================== */
+    .ebook-viewport {
+      width: 100%;
+      max-width: 900px;
+      padding: 30px 16px 80px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    /* Single page mode */
+    .ebook-viewport.paged-mode .ebook-page {
+      display: none;
+    }
+
+    .ebook-viewport.paged-mode .ebook-page.active-page {
+      display: flex;
+      animation: fadeInPage 0.25s ease-out;
+    }
+
+    @keyframes fadeInPage {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* A4 Dimensions on Screen: 210mm x 297mm proportion ~ 1 : 1.414 */
+    .ebook-page {
+      background: var(--white);
+      color: var(--slate-800);
+      width: 100%;
+      min-height: 1140px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-page);
+      padding: 44px 48px 36px 48px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-sizing: border-box;
+      scroll-margin-top: 72px;
+    }
+
+    /* Small Dedicated Front Cover Page */
+    .ebook-cover-page {
+      background: linear-gradient(165deg, #0d162d 0%, #080f21 55%, #050a18 100%);
+      color: #f8fafc;
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      box-shadow: 0 18px 40px -10px rgba(0, 0, 0, 0.5), 0 0 28px rgba(0, 180, 216, 0.14);
+      min-height: 1040px;
+      padding: 36px 42px 28px 42px;
+    }
+
+    .cover-page-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .cover-inst-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .cover-univ-name {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .cover-programme-pill {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7dd3fc;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .cover-page-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .cover-badge-academic {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.02em;
+    }
+
+    .cover-hero-title {
+      font-size: 2.15rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      line-height: 1.1;
+      margin: 4px 0 0 0;
+      text-shadow: 0 2px 14px rgba(0, 180, 216, 0.35);
+    }
+
+    .cover-hero-subtitle {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--cyan-400);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .cover-hero-desc {
+      font-size: 0.86rem;
+      color: #94a3b8;
+      max-width: 620px;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .cover-emblem-wrap {
+      width: 100%;
+      max-width: 480px;
+      margin: 6px 0;
+    }
+
+    .cover-emblem-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .cover-dossier-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+      text-align: left;
+    }
+
+    .dossier-card {
+      background: rgba(16, 31, 66, 0.65);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 8px;
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .dossier-label {
+      font-size: 0.66rem;
+      color: #7dd3fc;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .dossier-value {
+      font-size: 0.88rem;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .dossier-sub {
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+
+    .cover-topic-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .topic-tag {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .cover-page-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(56, 189, 248, 0.2);
+      padding-top: 10px;
+      margin-top: 14px;
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+
+    .cover-start-btn {
+      background: linear-gradient(135deg, var(--cyan-500), var(--cyan-600));
+      color: #ffffff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 12px rgba(0, 180, 216, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .cover-start-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(0, 180, 216, 0.6);
+    }
+
+    /* Running Header & Running Footer on each page */
+    .page-header-running {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid var(--slate-200);
+      padding-bottom: 8px;
+      margin-bottom: 18px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--slate-500);
+      font-weight: 600;
+    }
+
+    .running-title {
+      color: var(--navy-700);
+      font-weight: 700;
+    }
+
+    .running-inst {
+      display: none !important;
+    }
+
+    .page-footer-running {
+      border-top: 1.5px solid var(--slate-200);
+      padding-top: 10px;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--slate-500);
+    }
+
+    .running-sub {
+      font-weight: 600;
+      color: var(--slate-600);
+    }
+
+    .page-number-box {
+      font-weight: 700;
+      color: var(--navy-800);
+      background: var(--slate-100);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+    }
+
+    /* Main Page Content Body */
+    .page-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Typography inside Pages */
+    h2.section-heading {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2.section-heading .heading-accent {
+      width: 4px;
+      height: 1.25em;
+      background: var(--cyan-500);
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    h3.sub-heading {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy-800);
+      letter-spacing: -0.01em;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    p.body-text {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--slate-700);
+      text-align: justify;
+    }
+
+    .cite {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--cyan-600);
+      text-decoration: none;
+      padding: 0 1px;
+      vertical-align: baseline;
+      transition: color 0.15s ease;
+    }
+
+    .cite:hover {
+      color: var(--navy-900);
+      text-decoration: underline;
+    }
+
+    /* Highlighted Statement / Blockquotes */
+    .quote-highlight-box {
+      background: linear-gradient(135deg, var(--cyan-50) 0%, #f8fafc 100%);
+      border-left: 4px solid var(--cyan-500);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 4px 0;
+    }
+
+    .quote-highlight-box p {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--navy-900);
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    /* Cards & Grids */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: var(--cyan-400);
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+    }
+
+    .card-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--navy-800);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-body {
+      font-size: 0.78rem;
+      color: var(--slate-600);
+      line-height: 1.45;
+    }
+
+    /* =====================================================================
+       SPECIFIC PAGE 1 — COVER & INTRODUCTION
+       ===================================================================== */
+    .cover-top-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--navy-900);
+      color: var(--cyan-400);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+
+    .cover-header {
+      margin-bottom: 8px;
+    }
+
+    .cover-title {
+      font-size: 2.25rem;
+      font-weight: 900;
+      color: var(--navy-900);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .cover-subtitle {
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--cyan-600);
+      margin-top: 4px;
+      letter-spacing: -0.01em;
+    }
+
+    /* Five Fields Responsive Metadata Bar */
+    .metadata-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      margin: 8px 0;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      color: var(--slate-500);
+    }
+
+    .meta-value {
+      font-size: 0.77rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Perfectly Centered & Non-Clipping Cover Illustration Wrap */
+    .cover-illustration-wrap {
+      width: 100%;
+      height: 185px;
+      background: linear-gradient(135deg, #091227 0%, #162a56 100%);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.45);
+      margin: 4px 0 8px 0;
+      border: 1px solid rgba(0, 180, 216, 0.35);
+    }
+
+    .cover-svg {
+      width: 100%;
+      height: 100%;
+      max-width: 780px;
+      max-height: 185px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* Problem breakdown split on Page 1 */
+    .wall-of-confusion-card {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+      background: var(--slate-50);
+      border: 1px dashed var(--slate-300);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin: 4px 0;
+      transition: border-color 0.2s ease;
+    }
+
+    .wall-of-confusion-card:hover {
+      border-color: var(--cyan-400);
+    }
+
+    .wall-side {
+      font-size: 0.78rem;
+    }
+
+    .wall-side strong {
+      display: block;
+      color: var(--navy-900);
+      font-size: 0.8rem;
+      margin-bottom: 2px;
+    }
+
+    .wall-divider {
+      background: var(--slate-200);
+      color: var(--slate-500);
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* =====================================================================
+       SPECIFIC PAGE 2 — LIFECYCLE DIAGRAM & SHOPPING CART EXAMPLE
+       ===================================================================== */
+    .lifecycle-diagram-card {
+      background: linear-gradient(180deg, #081126 0%, #132247 100%);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      color: var(--white);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(0, 180, 216, 0.25);
+      position: relative;
+    }
+
+    .lifecycle-svg {
+      width: 100%;
+      height: auto;
+      max-height: 250px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .lifecycle-stages-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stage-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-sm);
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      cursor: default;
+    }
+
+    .stage-pill:hover {
+      transform: translateY(-2px);
+      border-color: var(--cyan-400);
+      box-shadow: 0 4px 12px rgba(0, 180, 216, 0.25);
+    }
+
+    .stage-pill-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--cyan-400);
+    }
+
+    .stage-pill-body {
+      font-size: 0.68rem;
+      color: var(--slate-300);
+      line-height: 1.35;
+    }
+
+    /* Shopping App Step Matrix */
+    .app-example-box {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-left: 4px solid var(--emerald-500);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+
+    .timeline-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .step-item {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 0.72rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .step-item:hover {
+      transform: translateY(-1.5px);
+      border-color: var(--emerald-500);
+    }
+
+    .step-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--cyan-600);
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    /* =====================================================================
+       SPECIFIC PAGE 3 — PRACTICES & TECH TABLE
+       ===================================================================== */
+    .practices-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .practice-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .practice-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--cyan-500);
+      box-shadow: 0 4px 12px rgba(0, 180, 216, 0.1);
+    }
+
+    .practice-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    .practice-desc {
+      font-size: 0.76rem;
+      color: var(--slate-600);
+      line-height: 1.4;
+    }
+
+    /* Callout: CD vs CD */
+    .comparison-callout {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .comparison-icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--emerald-500);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .comparison-text {
+      font-size: 0.78rem;
+      color: #166534;
+      line-height: 1.4;
+    }
+
+    .comparison-text strong {
+      color: #14532d;
+    }
+
+    /* Compact Tech Table */
+    .tech-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      margin-top: 4px;
+    }
+
+    table.tech-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.76rem;
+      text-align: left;
+    }
+
+    table.tech-table th {
+      background: var(--navy-900);
+      color: var(--white);
+      font-weight: 700;
+      padding: 6px 10px;
+      font-size: 0.74rem;
+      letter-spacing: 0.03em;
+    }
+
+    table.tech-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--slate-200);
+      color: var(--slate-700);
+      vertical-align: top;
+      line-height: 1.35;
+      transition: background-color 0.15s ease;
+    }
+
+    table.tech-table tr:nth-child(even) td {
+      background: var(--slate-50);
+    }
+
+    table.tech-table tr:hover td {
+      background: var(--cyan-50) !important;
+    }
+
+    .tool-badge {
+      display: inline-block;
+      background: var(--cyan-100);
+      color: var(--cyan-600);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin: 1px 2px 1px 0;
+      white-space: nowrap;
+    }
+
+    /* =====================================================================
+       SPECIFIC PAGE 4 — BENEFITS, CHALLENGES, BEST PRACTICES
+       ===================================================================== */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .benefit-item {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .benefit-item:hover {
+      transform: translateY(-1.5px);
+      border-color: var(--emerald-500);
+    }
+
+    .benefit-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .benefit-title svg {
+      color: var(--emerald-600);
+      flex-shrink: 0;
+    }
+
+    .benefit-desc {
+      font-size: 0.72rem;
+      color: var(--slate-600);
+      line-height: 1.35;
+    }
+
+    .challenges-box {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .challenges-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 14px;
+      margin-top: 6px;
+    }
+
+    .challenge-entry {
+      font-size: 0.74rem;
+      color: #92400e;
+      line-height: 1.35;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .challenge-entry svg {
+      flex-shrink: 0;
+      color: var(--amber-600);
+      margin-top: 2px;
+    }
+
+    .best-practices-ordered {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      counter-reset: bp-counter;
+      list-style: none;
+    }
+
+    .bp-item {
+      counter-increment: bp-counter;
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 6px 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.74rem;
+      line-height: 1.35;
+      color: var(--slate-700);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .bp-item:hover {
+      transform: translateY(-1px);
+      border-color: var(--cyan-500);
+    }
+
+    .bp-item::before {
+      content: counter(bp-counter);
+      background: var(--navy-800);
+      color: var(--white);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* =====================================================================
+       SPECIFIC PAGE 5 — CONCLUSION, REFERENCES & AI ACKNOWLEDGEMENT
+       ===================================================================== */
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+    }
+
+    .conclusion-summary-box {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .pillars-pill-box {
+      background: linear-gradient(135deg, var(--navy-900), #162955);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .pillars-pill-box h4 {
+      font-size: 0.8rem;
+      color: var(--cyan-400);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .pillar-mini {
+      font-size: 0.72rem;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .pillar-mini:last-child {
+      border-bottom: none;
+    }
+
+    .pillar-mini strong {
+      color: var(--emerald-400, #34d399);
+    }
+
+    .references-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+
+    .ref-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 6px;
+    }
+
+    .ref-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.74rem;
+      line-height: 1.4;
+      color: var(--slate-700);
+    }
+
+    .ref-num {
+      font-weight: 800;
+      color: var(--navy-900);
+      background: var(--slate-200);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      flex-shrink: 0;
+    }
+
+    .ref-content {
+      word-break: break-word;
+    }
+
+    .ref-link {
+      color: var(--cyan-600);
+      text-decoration: underline;
+      display: inline-block;
+      font-size: 0.71rem;
+      word-break: break-all;
+    }
+
+    .ref-link:hover {
+      color: var(--navy-900);
+    }
+
+    .ai-acknowledgement-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--cyan-600);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 0.74rem;
+      color: #1e40af;
+      line-height: 1.4;
+    }
+
+    .ai-acknowledgement-box strong {
+      color: #1e3a8a;
+    }
+
+    .submission-badge-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--navy-900);
+      color: var(--white);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.72rem;
+    }
+
+    .submission-badge-bar span strong {
+      color: var(--cyan-400);
+    }
+
+    /* =====================================================================
+       ANIMATIONS: TASTEFUL, PROFESSIONAL & LIGHTWEIGHT
+       Using transform-box: fill-box & transform-origin: center to prevent
+       SVG coordinates override or layout shift.
+       ===================================================================== */
+    /* Cover illustration animations */
+    .anim-float-dev {
+      animation: subtleFloatDev 5s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .anim-float-pipe {
+      animation: subtleFloatPipe 6s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    .anim-float-ops {
+      animation: subtleFloatOps 5.5s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    @keyframes subtleFloatDev {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes subtleFloatPipe {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(2.5px); }
+    }
+    @keyframes subtleFloatOps {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2.5px); }
+    }
+
+    /* Flowing dashed data streams */
+    .anim-flow-stream {
+      animation: flowDataStream 14s linear infinite;
+    }
+    @keyframes flowDataStream {
+      to { stroke-dashoffset: -100; }
+    }
+
+    .anim-pulse-dot {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: pulseDot 3s ease-in-out infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.35); filter: drop-shadow(0 0 4px #38bdf8); }
+    }
+
+    /* Lifecycle Track Flow Animation */
+    .lifecycle-flow-track {
+      stroke-dasharray: 10 7;
+      animation: lifecycleTrackMotion 24s linear infinite;
+    }
+    @keyframes lifecycleTrackMotion {
+      to { stroke-dashoffset: -340; }
+    }
+
+    /* Central Node Pulse & Glow */
+    .anim-center-feedback {
+      animation: centerFeedbackGlow 4s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    @keyframes centerFeedbackGlow {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.4));
+      }
+      50% {
+        transform: scale(1.035);
+        filter: drop-shadow(0 0 9px rgba(52, 211, 153, 0.75));
+      }
+    }
+
+    /* Directional Flow Arrows on Lifecycle */
+    .flow-arrow {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: arrowPulseSoft 2.4s ease-in-out infinite;
+    }
+    .arrow-delay-1 { animation-delay: 0s; }
+    .arrow-delay-2 { animation-delay: 0.6s; }
+    .arrow-delay-3 { animation-delay: 1.2s; }
+    .arrow-delay-4 { animation-delay: 1.8s; }
+
+    @keyframes arrowPulseSoft {
+      0%, 100% { opacity: 0.65; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.22); filter: drop-shadow(0 0 3px #38bdf8); }
+    }
+
+    /* Feedback loop back-arrow (Monitor -> Plan) */
+    .feedback-loop-arc {
+      animation: feedbackLoopFlow 8s linear infinite;
+    }
+    @keyframes feedbackLoopFlow {
+      to { stroke-dashoffset: -90; }
+    }
+
+    /* Sequential reveal of lifecycle stages on page 2 activation */
+    .ebook-page.active-page .stage-pill {
+      animation: stageCardReveal 0.42s ease-out backwards;
+    }
+    .stage-pill:nth-child(1) { animation-delay: 0.04s; }
+    .stage-pill:nth-child(2) { animation-delay: 0.08s; }
+    .stage-pill:nth-child(3) { animation-delay: 0.12s; }
+    .stage-pill:nth-child(4) { animation-delay: 0.16s; }
+    .stage-pill:nth-child(5) { animation-delay: 0.20s; }
+    .stage-pill:nth-child(6) { animation-delay: 0.24s; }
+    .stage-pill:nth-child(7) { animation-delay: 0.28s; }
+    .stage-pill:nth-child(8) { animation-delay: 0.32s; }
+
+    @keyframes stageCardReveal {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Diagram node interactive hover in SVG */
+    .svg-node-hover {
+      cursor: pointer;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .svg-node-hover:hover {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+    }
+
+    /* Respect Reduced Motion Preferences */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001s !important;
+        scroll-behavior: auto !important;
+      }
+      .anim-float-dev,
+      .anim-float-pipe,
+      .anim-float-ops,
+      .anim-flow-stream,
+      .anim-pulse-dot,
+      .lifecycle-flow-track,
+      .anim-center-feedback,
+      .flow-arrow,
+      .feedback-loop-arc,
+      .ebook-page.active-page .stage-pill {
+        animation: none !important;
+        transform: none !important;
+      }
+    }
+
+    /* =====================================================================
+       PRINT STYLESHEET (STRICT FIVE A4 PAGES LIMIT)
+       ===================================================================== */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm 12mm 10mm 12mm;
+      }
+
+      * {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+      }
+
+      html, body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        font-size: 10pt !important;
+      }
+
+      /* Hide all web UI, headers, navigation, buttons, progress bars */
+      .app-header,
+      .progress-bar-container,
+      .nav-controls,
+      .screen-only,
+      .view-toggle,
+      .btn-action,
+      .pill-btn {
+        display: none !important;
+      }
+
+      .ebook-viewport {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        display: block !important;
+      }
+
+      /* Force all 5 pages to be visible and format each as an A4 page */
+      .ebook-viewport.paged-mode .ebook-page,
+      .ebook-page {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        height: 275mm !important;
+        max-height: 275mm !important;
+        min-height: 275mm !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        padding: 0 0 4mm 0 !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Do not break after Page 5 */
+      #page-5 {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+
+      /* Cover Page Print Styling */
+      .ebook-cover-page {
+        background: #0a1128 !important;
+        color: #f8fafc !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        padding: 8mm 12mm 6mm 12mm !important;
+      }
+
+      .ebook-cover-page .dossier-card {
+        background: #101f42 !important;
+        border-color: #2a437e !important;
+      }
+
+      .ebook-cover-page .cover-badge-academic {
+        background: #064e3b !important;
+        color: #34d399 !important;
+      }
+
+      .ebook-cover-page .cover-start-btn {
+        display: none !important;
+      }
+
+      .page-header-running {
+        border-bottom: 1.5pt solid #cbd5e1 !important;
+        padding-bottom: 2mm !important;
+        margin-bottom: 3mm !important;
+        font-size: 7.5pt !important;
+      }
+
+      .page-footer-running {
+        border-top: 1.5pt solid #cbd5e1 !important;
+        padding-top: 2.5mm !important;
+        margin-top: 3mm !important;
+        font-size: 7.5pt !important;
+      }
+
+      .cover-illustration-wrap {
+        height: 155px !important;
+        margin: 2mm 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .lifecycle-diagram-card {
+        padding: 8px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .lifecycle-svg {
+        max-height: 195px !important;
+      }
+
+      .quote-highlight-box,
+      .card,
+      .metadata-bar,
+      .wall-of-confusion-card,
+      .app-example-box,
+      .practice-card,
+      .comparison-callout,
+      .tech-table th,
+      .tech-table td,
+      .benefit-item,
+      .challenges-box,
+      .bp-item,
+      .conclusion-summary-box,
+      .pillars-pill-box,
+      .references-card,
+      .ai-acknowledgement-box,
+      .submission-badge-bar {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* Maintain readability of links without huge blue overrides */
+      a {
+        color: #0284c7 !important;
+        text-decoration: underline !important;
+      }
+
+      .ref-link {
+        font-size: 7pt !important;
+      }
+    }
+
+    /* Responsive adjustments for mobile/tablets */
+    @media (max-width: 820px) {
+      .metadata-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .metadata-bar .meta-item:last-child {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .ebook-page {
+        padding: 24px 20px;
+        min-height: auto;
+      }
+      .grid-2col, .grid-3col, .lifecycle-stages-grid, .timeline-steps, .practices-grid, .benefits-grid, .challenges-list, .best-practices-ordered, .conclusion-grid {
+        grid-template-columns: 1fr;
+      }
+      .wall-of-confusion-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .brand-text h1 {
+        font-size: 0.85rem;
+      }
+      .brand-text p {
+        font-size: 0.68rem;
+      }
+      .submission-badge-bar {
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+      }
+      .cover-hero-title {
+        font-size: 1.6rem;
+      }
+      .cover-hero-subtitle {
+        font-size: 0.95rem;
+      }
+      .cover-dossier-grid {
+        grid-template-columns: 1fr;
+      }
+      .cover-page-topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================================================================
+       APPLICATION HEADER & CONTROLS (SCREEN INTERACTIVE BAR)
+       =================================================================== -->
+  <header class="app-header screen-only" role="banner">
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressBar" style="width: 20%;"></div>
+    </div>
+    <div class="header-content">
+      <div class="brand-group">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+            <path d="M6 6h10"></path>
+            <path d="M6 10h10"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>THE DEVOPS MODEL &bull; DIGITAL E-BOOK</h1>
+          <p>
+            <span>Akash Singh (26225002)</span>
+            <span class="badge-reg">MCA</span>
+          </p>
+        </div>
+      </div>
+
+      <nav class="nav-controls" aria-label="E-book Navigation">
+        <!-- Page Indicator Pills -->
+        <div class="page-pills" id="pagePills">
+          <button class="pill-btn pill-btn-cover active" data-target="0" title="Jump to Cover Page">Cover</button>
+          <button class="pill-btn" data-target="1" title="Jump to Page 1">1</button>
+          <button class="pill-btn" data-target="2" title="Jump to Page 2">2</button>
+          <button class="pill-btn" data-target="3" title="Jump to Page 3">3</button>
+          <button class="pill-btn" data-target="4" title="Jump to Page 4">4</button>
+          <button class="pill-btn" data-target="5" title="Jump to Page 5">5</button>
+        </div>
+
+        <button class="btn-action btn-secondary" id="prevBtn" disabled title="Previous Page">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Prev
+        </button>
+        <button class="btn-action btn-secondary" id="nextBtn" title="Next Page">
+          Next
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+
+        <button class="view-toggle" id="viewModeToggle" title="Switch to single-page reader view">
+          Reader View
+        </button>
+
+        <button class="btn-action btn-primary" id="printBtn" title="Print or save as 5-page A4 PDF">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          Print / Save PDF
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================================================================
+       MAIN E-BOOK VIEWPORT (CONTAINING EXACTLY 5 A4 PAGES)
+       =================================================================== -->
+  <main class="ebook-viewport" id="ebookViewport">
+
+    <!-- =================================================================
+         FRONT COVER PAGE (ACADEMIC MONOGRAPH COVER)
+         ================================================================= -->
+    <article class="ebook-page ebook-cover-page active-page" id="page-cover" data-page="0">
+      <header class="cover-page-topbar">
+        <div class="cover-inst-brand">
+          <span class="cover-univ-name">CHRIST (Deemed to be University) &bull; Delhi NCR</span>
+        </div>
+        <div class="cover-programme-pill">MCA &bull; 2025–2026</div>
+      </header>
+
+      <div class="cover-page-hero">
+        <div class="cover-badge-academic">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          Academic Monograph &bull; Continuous Internal Assessment (CIA 1)
+        </div>
+
+        <h1 class="cover-hero-title">THE DEVOPS MODEL</h1>
+        <h2 class="cover-hero-subtitle">IN SOFTWARE ENGINEERING</h2>
+        <p class="cover-hero-desc">Bridging Software Development and Operations for Agile, High-Velocity, and Reliable Systems Delivery</p>
+
+        <!-- Compact Animated Cover Emblem (DevOps Infinite Loop) -->
+        <div class="cover-emblem-wrap" aria-label="DevOps Infinite Loop Artwork">
+          <svg class="cover-emblem-svg" viewBox="0 0 460 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="coverEmblemBeam" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00b4d8"/>
+                <stop offset="50%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+              <filter id="glowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+            </defs>
+
+            <!-- Background Infinite Stream Path -->
+            <path d="M 140 70 C 140 35, 70 35, 70 70 C 70 105, 140 105, 230 70 C 320 35, 390 35, 390 70 C 390 105, 320 105, 230 70 Z" 
+                  stroke="rgba(56, 189, 248, 0.18)" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="anim-flow-stream" d="M 140 70 C 140 35, 70 35, 70 70 C 70 105, 140 105, 230 70 C 320 35, 390 35, 390 70 C 390 105, 320 105, 230 70 Z" 
+                  stroke="url(#coverEmblemBeam)" stroke-width="3.5" stroke-dasharray="10 6" fill="none" filter="url(#glowFilter)"/>
+
+            <!-- Development Node -->
+            <g transform="translate(32, 48)">
+              <rect width="80" height="44" rx="8" fill="#101f42" stroke="#00b4d8" stroke-width="1.5"/>
+              <text x="40" y="20" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="800" font-family="system-ui">DEVELOP</text>
+              <text x="40" y="33" text-anchor="middle" fill="#94a3b8" font-size="7.5" font-family="system-ui">Plan &bull; Code &bull; Test</text>
+            </g>
+
+            <!-- Center Intersection Badge -->
+            <g transform="translate(200, 50)">
+              <circle cx="30" cy="20" r="20" fill="#0a1128" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="30" y="17" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="800" font-family="system-ui">CI / CD</text>
+              <text x="30" y="28" text-anchor="middle" fill="#10b981" font-size="7" font-weight="700" font-family="system-ui">&infin; LOOP</text>
+            </g>
+
+            <!-- Operations Node -->
+            <g transform="translate(348, 48)">
+              <rect width="80" height="44" rx="8" fill="#101f42" stroke="#10b981" stroke-width="1.5"/>
+              <text x="40" y="20" text-anchor="middle" fill="#34d399" font-size="9" font-weight="800" font-family="system-ui">OPERATE</text>
+              <text x="40" y="33" text-anchor="middle" fill="#94a3b8" font-size="7.5" font-family="system-ui">Deploy &bull; Monitor</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Academic Dossier Metadata Grid -->
+        <div class="cover-dossier-grid">
+          <div class="dossier-card">
+            <span class="dossier-label">Course &bull; Subject</span>
+            <span class="dossier-value">Software Engineering</span>
+            <span class="dossier-sub">Master of Computer Applications</span>
+          </div>
+          <div class="dossier-card">
+            <span class="dossier-label">Author &bull; Student</span>
+            <span class="dossier-value">Akash Singh</span>
+            <span class="dossier-sub">Registration No: 26225002</span>
+          </div>
+          <div class="dossier-card">
+            <span class="dossier-label">Assessment Component</span>
+            <span class="dossier-value">CIA 1 (Digital E-Book)</span>
+            <span class="dossier-sub">Academic Year 2025–2026</span>
+          </div>
+          <div class="dossier-card">
+            <span class="dossier-label">Faculty In-Charge</span>
+            <span class="dossier-value">Vandana Mehindiratta</span>
+            <span class="dossier-sub">School of Sciences &bull; CHRIST NCR</span>
+          </div>
+        </div>
+
+        <!-- Topics Quick Navigator Pills -->
+        <div class="cover-topic-tags">
+          <span class="topic-tag">&bull; DevOps Culture &amp; Wall of Confusion</span>
+          <span class="topic-tag">&bull; 8-Stage Infinite Lifecycle</span>
+          <span class="topic-tag">&bull; CI/CD Pipelines &amp; IaC</span>
+          <span class="topic-tag">&bull; DORA Metrics &amp; Realities</span>
+          <span class="topic-tag">&bull; Academic References</span>
+        </div>
+      </div>
+
+      <footer class="cover-page-footer">
+        <span class="cover-edition-text">Digital Academic Edition &bull; Standalone Monograph</span>
+        <button class="cover-start-btn" onclick="document.getElementById('page-1').scrollIntoView({behavior:'smooth', block:'start'});" title="Start reading Chapter 1">
+          Start Reading &darr;
+        </button>
+      </footer>
+    </article>
+
+    <!-- =================================================================
+         PAGE 1: COVER & INTRODUCTION
+         ================================================================= -->
+    <article class="ebook-page active-page" id="page-1" data-page="1">
+      <header class="page-header-running">
+        <span class="running-title">CIA 1 — Digital Book &bull; Software Engineering</span>
+      </header>
+
+      <div class="page-body">
+        <div class="cover-top-badge">Academic Monograph &bull; Master of Computer Applications</div>
+
+        <div class="cover-header">
+          <h1 class="cover-title">THE DEVOPS MODEL</h1>
+          <p class="cover-subtitle">Bridging Development and Operations for Faster, Reliable Software Delivery</p>
+        </div>
+
+        <!-- Perfectly Centered, Non-Clipping DevOps Synergy Illustration -->
+        <div class="cover-illustration-wrap" aria-label="DevOps Synergy Diagram">
+          <svg class="cover-svg" viewBox="0 0 780 185" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="coverGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(255, 255, 255, 0.04)" stroke-width="1"/>
+              </pattern>
+              <linearGradient id="cyanEmeraldBeam" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00b4d8"/>
+                <stop offset="50%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+            <rect width="780" height="185" fill="url(#coverGrid)"/>
+
+            <!-- Symmetrical Sweeping Background Pipeline Beam -->
+            <path class="anim-flow-stream" d="M 60 90 C 135 15, 230 165, 390 90 C 550 15, 645 165, 720 90" stroke="url(#cyanEmeraldBeam)" stroke-width="2" stroke-dasharray="6 5" fill="none" opacity="0.35"/>
+
+            <!-- Forward Animated Data Connectors -->
+            <!-- Development to CI/CD Pipeline Line -->
+            <line x1="210" y1="86" x2="305" y2="86" stroke="#00b4d8" stroke-width="2.5" stroke-dasharray="6 4" class="anim-flow-stream"/>
+            <polygon class="flow-arrow arrow-delay-1" points="262,81 272,86 262,91" fill="#38bdf8"/>
+
+            <!-- CI/CD Pipeline to Operations Line -->
+            <line x1="475" y1="86" x2="570" y2="86" stroke="#10b981" stroke-width="2.5" stroke-dasharray="6 4" class="anim-flow-stream"/>
+            <polygon class="flow-arrow arrow-delay-3" points="527,81 537,86 527,91" fill="#34d399"/>
+
+            <!-- Restrained Feedback Loop Arc (Operations -> Development) -->
+            <path class="feedback-loop-arc" d="M 645 140 C 550 178, 230 178, 135 140" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 4" fill="none" opacity="0.6"/>
+            <polygon class="flow-arrow arrow-delay-2" points="396,166 384,171 396,176" fill="#38bdf8"/>
+            <text x="390" y="162" text-anchor="middle" fill="#7dd3fc" font-size="8" font-weight="700" letter-spacing="0.08em" font-family="system-ui">CONTINUOUS TELEMETRY &amp; FEEDBACK LOOP</text>
+
+            <!-- Pulsing Data Flow Glow Dots -->
+            <circle class="anim-pulse-dot" cx="235" cy="86" r="3.5" fill="#38bdf8"/>
+            <circle class="anim-pulse-dot" cx="390" cy="86" r="4.5" fill="#10b981" style="animation-delay: 1s;"/>
+            <circle class="anim-pulse-dot" cx="545" cy="86" r="3.5" fill="#34d399" style="animation-delay: 2s;"/>
+
+            <!-- Left Node: Software Development (Nested to preserve X=60 coordinate) -->
+            <g transform="translate(60, 32)">
+              <g class="anim-float-dev">
+                <rect width="150" height="108" rx="10" fill="#101f42" stroke="#00b4d8" stroke-width="1.8"/>
+                <circle cx="24" cy="24" r="12" fill="rgba(0,180,216,0.18)"/>
+                <path d="M 19 20 L 15 24 L 19 28 M 29 20 L 33 24 L 29 28" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                <text x="44" y="28" fill="#ffffff" font-size="11" font-weight="700" font-family="system-ui">DEVELOPMENT</text>
+                <text x="16" y="52" fill="#94a3b8" font-size="8.5" font-family="system-ui">&bull; Feature Architecture</text>
+                <text x="16" y="70" fill="#94a3b8" font-size="8.5" font-family="system-ui">&bull; Clean Code &amp; Testing</text>
+                <text x="16" y="88" fill="#94a3b8" font-size="8.5" font-family="system-ui">&bull; Frequent Git Commits</text>
+              </g>
+            </g>
+
+            <!-- Center Node: Automated CI/CD Pipeline (Nested to preserve X=305 coordinate) -->
+            <g transform="translate(305, 20)">
+              <g class="anim-float-pipe">
+                <rect width="170" height="132" rx="12" fill="#0c1836" stroke="#10b981" stroke-width="2"/>
+                <circle cx="85" cy="26" r="14" fill="rgba(16,185,129,0.18)"/>
+                <path d="M 77 26 C 77 22, 80 20, 85 20 C 90 20, 93 22, 93 26 C 93 30, 90 32, 85 32 C 80 32, 77 30, 77 26 Z" stroke="#10b981" stroke-width="2"/>
+                <text x="85" y="52" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="800" font-family="system-ui">CI / CD PIPELINE</text>
+                <rect x="16" y="64" width="138" height="24" rx="4" fill="rgba(56,189,248,0.1)" stroke="#38bdf8" stroke-width="0.8"/>
+                <text x="85" y="80" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-weight="600" font-family="system-ui">Automated Build &amp; Tests</text>
+                <rect x="16" y="95" width="138" height="24" rx="4" fill="rgba(16,185,129,0.1)" stroke="#10b981" stroke-width="0.8"/>
+                <text x="85" y="111" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="600" font-family="system-ui">Automated Deployments</text>
+              </g>
+            </g>
+
+            <!-- Right Node: Operations & Observability (Nested to preserve X=570 coordinate) -->
+            <g transform="translate(570, 32)">
+              <g class="anim-float-ops">
+                <rect width="150" height="108" rx="10" fill="#101f42" stroke="#00b4d8" stroke-width="1.8"/>
+                <circle cx="24" cy="24" r="12" fill="rgba(0,180,216,0.18)"/>
+                <path d="M 17 20 H 31 V 22 H 17 Z M 17 24 H 31 V 26 H 17 Z M 19 28 H 29" stroke="#38bdf8" stroke-width="1.5"/>
+                <text x="44" y="28" fill="#ffffff" font-size="11" font-weight="700" font-family="system-ui">OPERATIONS</text>
+                <text x="16" y="52" fill="#94a3b8" font-size="8.5" font-family="system-ui">&bull; Cloud &amp; Infrastructure</text>
+                <text x="16" y="70" fill="#94a3b8" font-size="8.5" font-family="system-ui">&bull; Real-Time Observability</text>
+                <text x="16" y="88" fill="#94a3b8" font-size="8.5" font-family="system-ui">&bull; Proactive Incident Healing</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <section>
+          <h2 class="section-heading"><span class="heading-accent"></span>Introduction to the DevOps Model</h2>
+          <p class="body-text" style="margin-top: 6px;">
+            In contemporary software engineering, <strong>DevOps</strong> represents an overarching union of cultural philosophies, engineering practices, and collaborative tooling designed to eliminate traditional friction between software development (Dev) and systems operations (Ops) <a href="#ref-1" class="cite">[1]</a>. Evolving as the operational continuum of Agile methodologies and Scrum frameworks, DevOps extends iterative sprint cycles beyond code construction to automated delivery and production operations. Rather than viewing software creation and runtime management as disparate phases owned by disconnected departments, the DevOps paradigm treats software delivery as a single continuous value stream. Organizations adopting DevOps focus on transforming cultural mindsets and implementing automated deployment pipelines to dramatically accelerate the lead time required to transition an idea from conception to production runtime <a href="#ref-2" class="cite">[2]</a>.
+          </p>
+        </section>
+
+        <!-- The Core Objectives Grid -->
+        <section>
+          <h3 class="sub-heading">Primary Objectives of the DevOps Paradigm</h3>
+          <div class="grid-3col" style="margin-top: 6px;">
+            <div class="card">
+              <div class="card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline></svg>
+                Frequent &amp; Rapid Delivery
+              </div>
+              <div class="card-body">Deploying smaller, incremental software updates rapidly to respond to evolving user demands <a href="#ref-1" class="cite">[1]</a>.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Deployment Reliability
+              </div>
+              <div class="card-body">Leveraging automated test suites to maintain uncompromising software quality and zero-downtime uptime <a href="#ref-3" class="cite">[3]</a>.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Continuous Feedback Loops
+              </div>
+              <div class="card-body">Gathering live runtime telemetry to identify defects instantly and continuously iterate system designs <a href="#ref-2" class="cite">[2]</a>.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Problem DevOps Addresses: Wall of Confusion -->
+        <section>
+          <h3 class="sub-heading">The Core Problem DevOps Resolves: The "Wall of Confusion"</h3>
+          <p class="body-text" style="margin-top: 4px;">
+            Historically, software organizations suffered from an adversarial disconnect: development teams were evaluated on shipping features quickly, whereas operations teams were incentivized to preserve production stability by resisting change <a href="#ref-2" class="cite">[2]</a>.
+          </p>
+          <div class="wall-of-confusion-card">
+            <div class="wall-side">
+              <strong>Development Team Focus</strong>
+              Rapid feature introduction, velocity, frequent modifications, and codebase expansion.
+            </div>
+            <div class="wall-divider">Siloe &bull; Barrier</div>
+            <div class="wall-side" style="text-align: right;">
+              <strong>Operations Team Focus</strong>
+              System stability, high availability, change minimization, risk avoidance, and infrastructure compliance.
+            </div>
+          </div>
+          <p class="body-text" style="margin-top: 4px;">
+            This misalignment led to the infamous "Wall of Confusion," where developers threw untested code over the wall, leaving operations to diagnose deployment failures in isolation <a href="#ref-2" class="cite">[2]</a>. DevOps dismantles this barrier by instilling a model of <em>shared end-to-end responsibility</em>—engineers who author features also share accountability for their configuration, automated testing, deployment, and operational health <a href="#ref-1" class="cite">[1]</a>.
+          </p>
+        </section>
+
+        <div class="quote-highlight-box">
+          <p>“DevOps is not just a collection of tools; it is a collaborative approach to delivering and operating software.”</p>
+        </div>
+      </div>
+
+      <footer class="page-footer-running">
+        <span class="running-sub">The DevOps Model in Software Engineering</span>
+        <span class="page-number-box">Page 1 of 5</span>
+      </footer>
+    </article>
+
+    <!-- =================================================================
+         PAGE 2: THE DEVOPS LIFECYCLE & WORKING MODEL
+         ================================================================= -->
+    <article class="ebook-page active-page" id="page-2" data-page="2">
+      <header class="page-header-running">
+        <span class="running-title">CIA 1 — Digital Book &bull; Software Engineering</span>
+      </header>
+
+      <div class="page-body">
+        <section>
+          <h2 class="section-heading"><span class="heading-accent"></span>Understanding the DevOps Lifecycle</h2>
+          <p class="body-text" style="margin-top: 4px;">
+            The DevOps lifecycle is conceptualized as an ongoing, highly collaborative feedback loop rather than a rigid, linear waterfall phase model <a href="#ref-1" class="cite">[1]</a>. It illustrates software evolution as an iterative continuum where operational telemetry feeds directly back into forthcoming product planning <a href="#ref-3" class="cite">[3]</a>.
+          </p>
+        </section>
+
+        <!-- Lifecycle Diagram Card (Animated Inline SVG Infinity/Loop) -->
+        <div class="lifecycle-diagram-card">
+          <svg class="lifecycle-svg" viewBox="0 0 760 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="devGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0284c7"/>
+                <stop offset="100%" stop-color="#38bdf8"/>
+              </linearGradient>
+              <linearGradient id="opsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#059669"/>
+                <stop offset="100%" stop-color="#34d399"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Background Track -->
+            <path d="M 230 105 C 150 20, 60 40, 60 105 C 60 170, 150 190, 230 105 C 310 20, 450 20, 530 105 C 610 190, 700 170, 700 105 C 700 40, 610 20, 530 105 C 450 190, 310 190, 230 105 Z" 
+                  stroke="rgba(255,255,255,0.18)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+            
+            <!-- Animated Flowing Direction Track -->
+            <path class="lifecycle-flow-track" d="M 230 105 C 150 20, 60 40, 60 105 C 60 170, 150 190, 230 105 C 310 20, 450 20, 530 105 C 610 190, 700 170, 700 105 C 700 40, 610 20, 530 105 C 450 190, 310 190, 230 105 Z" 
+                  stroke="url(#devGrad)" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- Animated Restrained Feedback Loop Arc (Monitor back to Plan) -->
+            <path class="feedback-loop-arc" d="M 635 160 C 500 220, 260 220, 125 45" stroke="#38bdf8" stroke-width="2" fill="none" opacity="0.45"/>
+
+            <!-- Central Pulsing Feedback Node -->
+            <g class="anim-center-feedback">
+              <circle cx="380" cy="105" r="24" fill="#091227" stroke="#38bdf8" stroke-width="2.5"/>
+              <text x="380" y="102" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="900" font-family="system-ui">CONTINUOUS</text>
+              <text x="380" y="114" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="800" font-family="system-ui">FEEDBACK</text>
+            </g>
+
+            <!-- 1. PLAN -->
+            <g class="svg-node-hover" transform="translate(115, 30)">
+              <rect x="-36" y="-12" width="72" height="24" rx="12" fill="#0b1736" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">1. PLAN</text>
+            </g>
+
+            <!-- 2. CODE -->
+            <g class="svg-node-hover" transform="translate(45, 105)">
+              <rect x="-36" y="-12" width="72" height="24" rx="12" fill="#0b1736" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">2. CODE</text>
+            </g>
+
+            <!-- 3. BUILD -->
+            <g class="svg-node-hover" transform="translate(125, 178)">
+              <rect x="-36" y="-12" width="72" height="24" rx="12" fill="#0b1736" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">3. BUILD</text>
+            </g>
+
+            <!-- 4. TEST -->
+            <g class="svg-node-hover" transform="translate(255, 140)">
+              <rect x="-36" y="-12" width="72" height="24" rx="12" fill="#0b1736" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">4. TEST</text>
+            </g>
+
+            <!-- 5. RELEASE -->
+            <g class="svg-node-hover" transform="translate(505, 70)">
+              <rect x="-42" y="-12" width="84" height="24" rx="12" fill="#0a231c" stroke="#34d399" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">5. RELEASE</text>
+            </g>
+
+            <!-- 6. DEPLOY -->
+            <g class="svg-node-hover" transform="translate(640, 42)">
+              <rect x="-38" y="-12" width="76" height="24" rx="12" fill="#0a231c" stroke="#34d399" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">6. DEPLOY</text>
+            </g>
+
+            <!-- 7. OPERATE -->
+            <g class="svg-node-hover" transform="translate(710, 105)">
+              <rect x="-42" y="-12" width="84" height="24" rx="12" fill="#0a231c" stroke="#34d399" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">7. OPERATE</text>
+            </g>
+
+            <!-- 8. MONITOR -->
+            <g class="svg-node-hover" transform="translate(635, 175)">
+              <rect x="-42" y="-12" width="84" height="24" rx="12" fill="#0a231c" stroke="#34d399" stroke-width="1.5"/>
+              <text x="0" y="4" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="system-ui">8. MONITOR</text>
+            </g>
+
+            <!-- Directional Pulsing Flow Arrows -->
+            <polygon class="flow-arrow arrow-delay-1" points="75,68 85,62 82,72" fill="#38bdf8"/>
+            <polygon class="flow-arrow arrow-delay-2" points="175,188 185,184 180,194" fill="#38bdf8"/>
+            <polygon class="flow-arrow arrow-delay-3" points="585,55 595,50 592,60" fill="#34d399"/>
+            <polygon class="flow-arrow arrow-delay-4" points="685,145 675,152 685,157" fill="#34d399"/>
+          </svg>
+        </div>
+
+        <!-- 8 Stages Detailed Descriptions Grid with Sequential Transition Reveal -->
+        <div class="lifecycle-stages-grid">
+          <div class="stage-pill">
+            <span class="stage-pill-head">1. Plan</span>
+            <span class="stage-pill-body">Define user stories, epics, priorities, and sprint backlogs using Agile methodologies and Scrum planning boards.</span>
+          </div>
+          <div class="stage-pill">
+            <span class="stage-pill-head">2. Code</span>
+            <span class="stage-pill-body">Author clean source code, perform peer code reviews, and commit changes to distributed Git repositories.</span>
+          </div>
+          <div class="stage-pill">
+            <span class="stage-pill-head">3. Build</span>
+            <span class="stage-pill-body">Compile binaries, resolve package dependencies, and assemble immutable Docker container images.</span>
+          </div>
+          <div class="stage-pill">
+            <span class="stage-pill-head">4. Test</span>
+            <span class="stage-pill-body">Execute automated unit, integration, and security tests to establish strict code quality gates <a href="#ref-3" class="cite">[3]</a>.</span>
+          </div>
+          <div class="stage-pill">
+            <span class="stage-pill-head" style="color:#34d399;">5. Release</span>
+            <span class="stage-pill-body">Package verified release artifacts, generate changelogs, and prepare staging environments.</span>
+          </div>
+          <div class="stage-pill">
+            <span class="stage-pill-head" style="color:#34d399;">6. Deploy</span>
+            <span class="stage-pill-body">Push artifacts to target cloud servers automatically via blue-green or canary release strategies <a href="#ref-2" class="cite">[2]</a>.</span>
+          </div>
+          <div class="stage-pill">
+            <span class="stage-pill-head" style="color:#34d399;">7. Operate</span>
+            <span class="stage-pill-body">Manage cloud infrastructure, dynamic autoscaling clusters, database reliability, and system uptime.</span>
+          </div>
+          <div class="stage-pill">
+            <span class="stage-pill-head" style="color:#34d399;">8. Monitor</span>
+            <span class="stage-pill-body">Collect distributed traces, CPU/memory metrics, and error logs to route insights back to Stage 1 <a href="#ref-1" class="cite">[1]</a>.</span>
+          </div>
+        </div>
+
+        <!-- Real-World Engineering Example: Online Shopping Cart -->
+        <section class="app-example-box">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 class="sub-heading" style="color:var(--navy-900); font-size:0.95rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+              Real-World Case Study: One-Click Checkout for an E-Commerce Application
+            </h3>
+            <span style="font-size:0.7rem; font-weight:700; color:var(--emerald-600); background:var(--emerald-100); padding:2px 8px; border-radius:10px;">End-to-End Walkthrough</span>
+          </div>
+          <p class="body-text" style="margin-top:4px; font-size:0.8rem;">
+            To understand how the DevOps lifecycle operates in industry practice, consider deploying a new <em>One-Click Instant Checkout</em> feature in an enterprise e-commerce platform:
+          </p>
+          <div class="timeline-steps">
+            <div class="step-item">
+              <span class="step-badge">Phase 1 &amp; 2: Plan &bull; Code</span>
+              Product managers analyze drop-offs at checkout and prioritize one-click purchasing. Developers implement checkout logic in microservice branches, submitting pull requests for peer reviews.
+            </div>
+            <div class="step-item">
+              <span class="step-badge">Phase 3 &amp; 4: Build &bull; Test</span>
+              Git triggers CI pipelines that compile code, build container images, and run 450+ unit tests, payment gateway mock verifications, and vulnerability scans automatically <a href="#ref-3" class="cite">[3]</a>.
+            </div>
+            <div class="step-item">
+              <span class="step-badge">Phase 5 &amp; 6: Release &bull; Deploy</span>
+              The build passes quality gates and is tagged as release v2.4. Kubernetes conducts a canary deployment, routing 5% of customer traffic to verify payment processing without downtime <a href="#ref-2" class="cite">[2]</a>.
+            </div>
+            <div class="step-item">
+              <span class="step-badge">Phase 7 &amp; 8: Operate &bull; Monitor</span>
+              Prometheus tracks payment latency, database IOPS, and checkout conversions in Grafana. If latency spikes or error rates climb above 0.1%, automated alerts notify teams, feeding into the next sprint plan <a href="#ref-1" class="cite">[1]</a>.
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="page-footer-running">
+        <span class="running-sub">The DevOps Model in Software Engineering</span>
+        <span class="page-number-box">Page 2 of 5</span>
+      </footer>
+    </article>
+
+    <!-- =================================================================
+         PAGE 3: CORE DEVOPS PRACTICES & TECHNOLOGIES
+         ================================================================= -->
+    <article class="ebook-page active-page" id="page-3" data-page="3">
+      <header class="page-header-running">
+        <span class="running-title">CIA 1 — Digital Book &bull; Software Engineering</span>
+      </header>
+
+      <div class="page-body">
+        <section>
+          <h2 class="section-heading"><span class="heading-accent"></span>The Practices Behind DevOps</h2>
+          <p class="body-text" style="margin-top: 4px;">
+            Successful DevOps adoption depends on proven technical practices that automate repetitive operations, eliminate human error, and guarantee consistent software state across environments <a href="#ref-2" class="cite">[2]</a>, <a href="#ref-3" class="cite">[3]</a>.
+          </p>
+        </section>
+
+        <!-- Core Practices Grid -->
+        <div class="practices-grid">
+          <div class="practice-card">
+            <div class="practice-title">
+              <span>1. Continuous Integration (CI)</span>
+              <span style="font-size:0.68rem; color:var(--cyan-600); font-weight:700;">Code Quality</span>
+            </div>
+            <p class="practice-desc">
+              Developers merge code changes into a shared trunk several times a day. Every commit triggers an automated build and test pipeline, pinpointing defects and merge conflicts immediately <a href="#ref-2" class="cite">[2]</a>.
+            </p>
+          </div>
+
+          <div class="practice-card">
+            <div class="practice-title">
+              <span>2. Continuous Delivery (CD)</span>
+              <span style="font-size:0.68rem; color:var(--emerald-600); font-weight:700;">Release Readiness</span>
+            </div>
+            <p class="practice-desc">
+              Extends CI by automatically testing and staging builds in production-like environments, ensuring software is deployable at any moment with a single manual sign-off <a href="#ref-5" class="cite">[5]</a>.
+            </p>
+          </div>
+
+          <div class="practice-card">
+            <div class="practice-title">
+              <span>3. Continuous Deployment</span>
+              <span style="font-size:0.68rem; color:var(--cyan-600); font-weight:700;">Fully Automated</span>
+            </div>
+            <p class="practice-desc">
+              Removes human approval gates altogether: any code change that passes all automated pipeline tests is deployed directly and automatically to live production environments <a href="#ref-5" class="cite">[5]</a>.
+            </p>
+          </div>
+
+          <div class="practice-card">
+            <div class="practice-title">
+              <span>4. Infrastructure as Code (IaC)</span>
+              <span style="font-size:0.68rem; color:var(--emerald-600); font-weight:700;">Declarative Config</span>
+            </div>
+            <p class="practice-desc">
+              Managing cloud servers, networks, and databases using declarative configuration files stored in version control, preventing environment drift and manual configuration errors <a href="#ref-4" class="cite">[4]</a>.
+            </p>
+          </div>
+
+          <div class="practice-card">
+            <div class="practice-title">
+              <span>5. Automated Testing</span>
+              <span style="font-size:0.68rem; color:var(--cyan-600); font-weight:700;">Defect Prevention</span>
+            </div>
+            <p class="practice-desc">
+              Executing automated unit, integration, performance, and security scans on every pipeline execution to safeguard regressions without relying solely on tedious manual testing <a href="#ref-3" class="cite">[3]</a>.
+            </p>
+          </div>
+
+          <div class="practice-card">
+            <div class="practice-title">
+              <span>6. Monitoring &amp; Logging</span>
+              <span style="font-size:0.68rem; color:var(--emerald-600); font-weight:700;">Live Observability</span>
+            </div>
+            <p class="practice-desc">
+              Aggregating runtime metrics, traces, and structured event logs into centralized dashboards, enabling swift root-cause analysis and proactively resolving customer-impacting incidents <a href="#ref-2" class="cite">[2]</a>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Academic Comparison Callout: Continuous Delivery vs Continuous Deployment -->
+        <div class="comparison-callout">
+          <div class="comparison-icon" aria-hidden="true">&#9878;</div>
+          <div class="comparison-text">
+            <strong>Key Academic Distinction: Continuous Delivery vs. Continuous Deployment</strong><br>
+            While both practices automate the build and testing pipeline, <strong>Continuous Delivery</strong> keeps the software in an always-deployable state but retains a <em>manual decision gate</em> before updating live production. In contrast, <strong>Continuous Deployment</strong> deploys qualifying code changes to production <em>automatically</em> with zero human intervention <a href="#ref-2" class="cite">[2]</a>, <a href="#ref-5" class="cite">[5]</a>.
+          </div>
+        </div>
+
+        <!-- Technology Examples Table -->
+        <section>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 2px;">
+            <h3 class="sub-heading" style="font-size: 0.95rem;">Representative DevOps Technologies</h3>
+            <span style="font-size: 0.7rem; color: var(--slate-500); font-style: italic;">Illustrative tool landscape (organizations select tools according to their operational needs)</span>
+          </div>
+          <div class="tech-table-wrap">
+            <table class="tech-table">
+              <thead>
+                <tr>
+                  <th style="width: 25%;">Purpose</th>
+                  <th style="width: 28%;">Example Tools</th>
+                  <th style="width: 47%;">How They Help Software Teams</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Version Control &amp; Review</strong></td>
+                  <td><span class="tool-badge">Git</span> <span class="tool-badge">GitHub</span></td>
+                  <td>Enables distributed branching, code history tracking, peer review pull requests, and auditability <a href="#ref-2" class="cite">[2]</a>.</td>
+                </tr>
+                <tr>
+                  <td><strong>CI/CD Automation</strong></td>
+                  <td><span class="tool-badge">Jenkins</span> <span class="tool-badge">GitHub Actions</span></td>
+                  <td>Orchestrates build triggers, test pipelines, artifact packaging, and staged multi-environment promotions <a href="#ref-3" class="cite">[3]</a>.</td>
+                </tr>
+                <tr>
+                  <td><strong>Containerization</strong></td>
+                  <td><span class="tool-badge">Docker</span></td>
+                  <td>Packages applications and their dependencies into immutable, reproducible lightweight runtime images <a href="#ref-1" class="cite">[1]</a>.</td>
+                </tr>
+                <tr>
+                  <td><strong>Container Orchestration</strong></td>
+                  <td><span class="tool-badge">Kubernetes</span></td>
+                  <td>Automates container scaling, self-healing pod restarts, zero-downtime rolling updates, and traffic routing <a href="#ref-3" class="cite">[3]</a>.</td>
+                </tr>
+                <tr>
+                  <td><strong>Infrastructure as Code</strong></td>
+                  <td><span class="tool-badge">Terraform</span></td>
+                  <td>Provides declarative definition and repeatable provisioning of cloud infrastructure across major providers <a href="#ref-4" class="cite">[4]</a>.</td>
+                </tr>
+                <tr>
+                  <td><strong>Monitoring &amp; Observability</strong></td>
+                  <td><span class="tool-badge">Prometheus</span> <span class="tool-badge">Grafana</span></td>
+                  <td>Captures time-series system metrics, triggers threshold alerts, and visualizes live health dashboards <a href="#ref-2" class="cite">[2]</a>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <footer class="page-footer-running">
+        <span class="running-sub">The DevOps Model in Software Engineering</span>
+        <span class="page-number-box">Page 3 of 5</span>
+      </footer>
+    </article>
+
+    <!-- =================================================================
+         PAGE 4: BENEFITS, CHALLENGES, AND PRACTICAL IMPLEMENTATION
+         ================================================================= -->
+    <article class="ebook-page active-page" id="page-4" data-page="4">
+      <header class="page-header-running">
+        <span class="running-title">CIA 1 — Digital Book &bull; Software Engineering</span>
+      </header>
+
+      <div class="page-body">
+        <section>
+          <h2 class="section-heading"><span class="heading-accent"></span>Why DevOps Matters: Benefits &amp; Realities</h2>
+          <p class="body-text" style="margin-top: 4px;">
+            Transitioning to the DevOps model yields transformative engineering advantages. However, it requires deliberate socio-technical adjustments and realistic expectations rather than blind tool adoption <a href="#ref-1" class="cite">[1]</a>, <a href="#ref-3" class="cite">[3]</a>.
+          </p>
+        </section>
+
+        <!-- Key Benefits Grid -->
+        <section>
+          <h3 class="sub-heading">Key Engineering Benefits</h3>
+          <div class="benefits-grid" style="margin-top: 4px;">
+            <div class="benefit-item">
+              <div class="benefit-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Faster Delivery Velocity
+              </div>
+              <div class="benefit-desc">Automated build and testing pipelines allow teams to ship smaller, safer updates more frequently <a href="#ref-1" class="cite">[1]</a>.</div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Enhanced Collaboration
+              </div>
+              <div class="benefit-desc">Eliminates blame-shifting; developers and operations personnel share responsibility for outcomes <a href="#ref-2" class="cite">[2]</a>.</div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Improved Reliability
+              </div>
+              <div class="benefit-desc">Automated testing and uniform environments catch regressions before they impact live end users <a href="#ref-3" class="cite">[3]</a>.</div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Rapid Feedback Loops
+              </div>
+              <div class="benefit-desc">Real-time telemetry and logging allow engineers to diagnose defects within minutes of deployment <a href="#ref-2" class="cite">[2]</a>.</div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Greater Consistency
+              </div>
+              <div class="benefit-desc">Infrastructure as Code eliminates configuration drift between development, staging, and production <a href="#ref-4" class="cite">[4]</a>.</div>
+            </div>
+            <div class="benefit-item">
+              <div class="benefit-title">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Continuous Improvement
+              </div>
+              <div class="benefit-desc">Teams iteratively refine delivery speed and software resilience using empirical operational metrics <a href="#ref-5" class="cite">[5]</a>.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Common Challenges -->
+        <section class="challenges-box">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 class="sub-heading" style="color:#78350f; font-size:0.92rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              Common Adoption Challenges &amp; Pitfalls
+            </h3>
+            <span style="font-size:0.68rem; font-weight:700; color:#b45309;">Prerequisites for Success</span>
+          </div>
+          <p class="body-text" style="color:#78350f; font-size:0.78rem; margin-top:2px;">
+            DevOps does not offer a magic bullet. Poor execution or neglecting culture can create new failure modes:
+          </p>
+          <div class="challenges-list">
+            <div class="challenge-entry">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+              <span><strong>Cultural Resistance:</strong> Entrenched silo habits and mistrust between teams can stall collaboration <a href="#ref-2" class="cite">[2]</a>.</span>
+            </div>
+            <div class="challenge-entry">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+              <span><strong>Legacy System Friction:</strong> Brittle monolithic codebases resist automated testing and containerization.</span>
+            </div>
+            <div class="challenge-entry">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+              <span><strong>Tooling &amp; Skill Deficits:</strong> Significant initial investment is required to train teams in automated CI/CD and cloud tools.</span>
+            </div>
+            <div class="challenge-entry">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+              <span><strong>Security &amp; Pipeline Risks:</strong> Fast releases without automated security gates risk deploying vulnerabilities (DevSecOps).</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Best Practices for Successful DevOps -->
+        <section>
+          <h3 class="sub-heading">Best Practices for Successful DevOps Implementation</h3>
+          <ol class="best-practices-ordered" style="margin-top: 4px;">
+            <li class="bp-item">
+              <div><strong>Establish Shared Goals:</strong> Align development and operations incentives around delivery velocity, uptime, and user satisfaction <a href="#ref-2" class="cite">[2]</a>.</div>
+            </li>
+            <li class="bp-item">
+              <div><strong>Automate Repetitive Tasks:</strong> Codify build, test, and provisioning scripts to prevent error-prone manual operations <a href="#ref-1" class="cite">[1]</a>.</div>
+            </li>
+            <li class="bp-item">
+              <div><strong>Deploy in Small Batches:</strong> Release incremental code changes often to reduce blast radius and streamline troubleshooting <a href="#ref-5" class="cite">[5]</a>.</div>
+            </li>
+            <li class="bp-item">
+              <div><strong>Integrate Security Early:</strong> Shift-left security by scanning code dependencies and container images directly inside CI pipelines.</div>
+            </li>
+            <li class="bp-item">
+              <div><strong>Implement Comprehensive Telemetry:</strong> Track latency, error counts, and server saturation to make data-driven decisions <a href="#ref-3" class="cite">[3]</a>.</div>
+            </li>
+            <li class="bp-item">
+              <div><strong>Document Runbooks:</strong> Maintain living architectural documentation and reproducible configuration files in Git <a href="#ref-4" class="cite">[4]</a>.</div>
+            </li>
+            <li class="bp-item" style="grid-column: span 2;">
+              <div><strong>Conduct Blameless Post-Mortems:</strong> Analyze system outages transparently to uncover systemic vulnerabilities rather than blaming individuals, driving continuous organizational learning <a href="#ref-3" class="cite">[3]</a>.</div>
+            </li>
+          </ol>
+        </section>
+
+        <div class="quote-highlight-box" style="margin-top: 2px;">
+          <p>“Successful DevOps combines people, processes, automation, security, and continuous feedback.”</p>
+        </div>
+      </div>
+
+      <footer class="page-footer-running">
+        <span class="running-sub">The DevOps Model in Software Engineering</span>
+        <span class="page-number-box">Page 4 of 5</span>
+      </footer>
+    </article>
+
+    <!-- =================================================================
+         PAGE 5: CONCLUSION AND ACADEMIC REFERENCES
+         ================================================================= -->
+    <article class="ebook-page active-page" id="page-5" data-page="5">
+      <header class="page-header-running">
+        <span class="running-title">CIA 1 — Digital Book &bull; Software Engineering</span>
+      </header>
+
+      <div class="page-body">
+        <section>
+          <h2 class="section-heading"><span class="heading-accent"></span>Conclusion and References</h2>
+        </section>
+
+        <!-- Academic Conclusion Split -->
+        <div class="conclusion-grid">
+          <div class="conclusion-summary-box">
+            <h3 class="sub-heading" style="font-size:0.95rem; margin-bottom:4px;">Academic Synthesis</h3>
+            <p class="body-text" style="font-size: 0.81rem; line-height:1.45;">
+              The <strong>DevOps model</strong> has redefined contemporary software engineering by establishing a structured, collaborative relationship between software developers and IT operations personnel. By integrating Agile methodologies (such as iterative Scrum sprint cycles) with automated continuous integration, continuous delivery, and infrastructure as code, organizations eliminate historical departmental silos, shorten deployment lead times, and significantly lower change failure rates <a href="#ref-1" class="cite">[1]</a>, <a href="#ref-2" class="cite">[2]</a>.
+            </p>
+            <p class="body-text" style="font-size: 0.81rem; line-height:1.45; margin-top:4px;">
+              Crucially, academic analysis emphasizes that DevOps is neither a rigid proprietary software product nor a collection of standalone automation scripts. Instead, it is an ongoing cultural and engineering methodology centered on shared operational accountability, measurable runtime observability, proactive security integration, and relentless iterative learning <a href="#ref-3" class="cite">[3]</a>, <a href="#ref-5" class="cite">[5]</a>.
+            </p>
+          </div>
+
+          <div class="pillars-pill-box">
+            <h4>Three Pillars of DevOps</h4>
+            <div class="pillar-mini">
+              <strong>1. Cultural Empathy:</strong> Shared ownership of business outcomes, eliminating the Dev vs. Ops divide.
+            </div>
+            <div class="pillar-mini">
+              <strong>2. Automated Flow:</strong> Repeatable CI/CD pipelines and declarative Infrastructure as Code.
+            </div>
+            <div class="pillar-mini">
+              <strong>3. Observability:</strong> Telemetry-driven feedback loops guiding continual system evolution.
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic References Section -->
+        <section class="references-card">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 class="sub-heading" style="font-size:0.95rem; color:var(--navy-900);">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path></svg>
+              Academic References &amp; Authoritative Sources
+            </h3>
+            <span style="font-size:0.68rem; font-weight:700; color:var(--slate-500); text-transform:uppercase;">Verified Citations</span>
+          </div>
+          
+          <ol class="ref-list">
+            <li class="ref-item" id="ref-1">
+              <span class="ref-num">[1]</span>
+              <div class="ref-content">
+                <strong>Amazon Web Services (AWS).</strong> “What is DevOps?” AWS Cloud Architecture and DevOps Best Practices Guide. Available: <a href="https://aws.amazon.com/devops/what-is-devops/" target="_blank" rel="noopener noreferrer" class="ref-link">https://aws.amazon.com/devops/what-is-devops/</a> [Accessed: 25-Oct-2026].
+              </div>
+            </li>
+            <li class="ref-item" id="ref-2">
+              <span class="ref-num">[2]</span>
+              <div class="ref-content">
+                <strong>Microsoft Learn.</strong> “What is DevOps? DevOps Explained.” Azure DevOps Technical Documentation. Available: <a href="https://learn.microsoft.com/en-us/devops/what-is-devops" target="_blank" rel="noopener noreferrer" class="ref-link">https://learn.microsoft.com/en-us/devops/what-is-devops</a> [Accessed: 25-Oct-2026].
+              </div>
+            </li>
+            <li class="ref-item" id="ref-3">
+              <span class="ref-num">[3]</span>
+              <div class="ref-content">
+                <strong>Google Cloud.</strong> “DevOps capabilities.” Google Cloud Architecture Center. Available: <a href="https://docs.cloud.google.com/architecture/devops" target="_blank" rel="noopener noreferrer" class="ref-link">https://docs.cloud.google.com/architecture/devops</a> [Accessed: 25-Oct-2026].
+              </div>
+            </li>
+            <li class="ref-item" id="ref-4">
+              <span class="ref-num">[4]</span>
+              <div class="ref-content">
+                <strong>Amazon Web Services (AWS).</strong> “Infrastructure as Code.” Introduction to DevOps on AWS Whitepaper Series. Available: <a href="https://docs.aws.amazon.com/whitepapers/latest/introduction-devops-aws/infrastructure-as-code.html" target="_blank" rel="noopener noreferrer" class="ref-link">https://docs.aws.amazon.com/whitepapers/latest/introduction-devops-aws/infrastructure-as-code.html</a> [Accessed: 25-Oct-2026].
+              </div>
+            </li>
+            <li class="ref-item" id="ref-5">
+              <span class="ref-num">[5]</span>
+              <div class="ref-content">
+                <strong>DORA (DevOps Research and Assessment).</strong> “Continuous delivery.” Google Cloud DevOps Research Capabilities Library. Available: <a href="https://dora.dev/capabilities/continuous-delivery/" target="_blank" rel="noopener noreferrer" class="ref-link">https://dora.dev/capabilities/continuous-delivery/</a> [Accessed: 25-Oct-2026].
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <!-- AI Acknowledgement Statement (Mandatory Requirement) -->
+        <div class="ai-acknowledgement-box">
+          <strong>AI Acknowledgement:</strong> ChatGPT (OpenAI) was used to assist with planning, drafting, and structuring this digital e-book. The content and references should be reviewed for accuracy before academic submission.
+        </div>
+
+        <!-- Academic Certification Footer Bar -->
+        <div class="submission-badge-bar">
+          <span>Candidate: <strong>Akash Singh (26225002)</strong> (MCA)</span>
+          <span>CIA 1 Digital E-Book Submission</span>
+          <span>School of Sciences (NCR)</span>
+        </div>
+      </div>
+
+      <footer class="page-footer-running">
+        <span class="running-sub">The DevOps Model in Software Engineering</span>
+        <span class="page-number-box">Page 5 of 5</span>
+      </footer>
+    </article>
+
+  </main>
+
+  <!-- ===================================================================
+       VANILLA JAVASCRIPT: CONTROLS, NAVIGATION & PRINT LOGIC
+       =================================================================== -->
+  <script>
+    (function () {
+      "use strict";
+
+      const TOTAL_PAGES = 5;
+      let currentPage = 0;
+      let isPagedMode = false;
+
+      // DOM Elements
+      const viewport = document.getElementById("ebookViewport");
+      const pages = Array.from(document.querySelectorAll(".ebook-page"));
+      const pillButtons = Array.from(document.querySelectorAll(".pill-btn"));
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const viewModeToggle = document.getElementById("viewModeToggle");
+      const printBtn = document.getElementById("printBtn");
+      const progressBar = document.getElementById("progressBar");
+
+      /**
+       * Updates UI indicators (pills, buttons, progress bar)
+       */
+      function updateUI(pageNum) {
+        currentPage = pageNum;
+
+        // Progress bar width (0 -> 10%, 1 -> 28%, ..., 5 -> 100%)
+        const progressPercent = Math.max(10, Math.round((currentPage / TOTAL_PAGES) * 100));
+        if (progressBar) {
+          progressBar.style.width = progressPercent + "%";
+        }
+
+        // Active pill button
+        pillButtons.forEach((btn) => {
+          const target = parseInt(btn.getAttribute("data-target"), 10);
+          if (target === currentPage) {
+            btn.classList.add("active");
+          } else {
+            btn.classList.remove("active");
+          }
+        });
+
+        // Prev / Next button states
+        if (prevBtn) {
+          prevBtn.disabled = currentPage === 0;
+        }
+        if (nextBtn) {
+          nextBtn.disabled = currentPage === TOTAL_PAGES;
+        }
+
+        // In paged mode, activate the corresponding page card
+        if (isPagedMode) {
+          pages.forEach((page) => {
+            const pageId = parseInt(page.getAttribute("data-page"), 10);
+            if (pageId === currentPage) {
+              page.classList.add("active-page");
+            } else {
+              page.classList.remove("active-page");
+            }
+          });
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      }
+
+      /**
+       * Switch to a specific page
+       */
+      function goToPage(targetPage) {
+        if (targetPage < 0 || targetPage > TOTAL_PAGES) return;
+
+        if (isPagedMode) {
+          updateUI(targetPage);
+        } else {
+          // Continuous scroll mode: scroll to element
+          const targetId = targetPage === 0 ? "page-cover" : "page-" + targetPage;
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+            updateUI(targetPage);
+          }
+        }
+      }
+
+      // Event Listeners for Pill Buttons
+      pillButtons.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          const target = parseInt(this.getAttribute("data-target"), 10);
+          goToPage(target);
+        });
+      });
+
+      // Prev and Next Button Handlers
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          if (currentPage > 0) goToPage(currentPage - 1);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          if (currentPage < TOTAL_PAGES) goToPage(currentPage + 1);
+        });
+      }
+
+      // View Mode Toggle (Continuous Scroll vs Paged Reader)
+      if (viewModeToggle) {
+        viewModeToggle.addEventListener("click", () => {
+          isPagedMode = !isPagedMode;
+          if (isPagedMode) {
+            viewport.classList.add("paged-mode");
+            viewModeToggle.textContent = "Continuous View";
+            viewModeToggle.title = "Switch to continuous scrolling view";
+            updateUI(currentPage);
+          } else {
+            viewport.classList.remove("paged-mode");
+            viewModeToggle.textContent = "Reader View";
+            viewModeToggle.title = "Switch to single-page reader view";
+            // Make all pages visible in continuous view
+            pages.forEach((p) => p.classList.add("active-page"));
+            const targetId = currentPage === 0 ? "page-cover" : "page-" + currentPage;
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+              targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          }
+        });
+      }
+
+      // Keyboard navigation (ArrowLeft, ArrowRight, PageUp, PageDown, 0-5, C keys)
+      window.addEventListener("keydown", (e) => {
+        if (e.target && ["input", "textarea"].includes(e.target.tagName.toLowerCase())) return;
+        if (e.key === "ArrowRight" || e.key === "PageDown") {
+          if (currentPage < TOTAL_PAGES) goToPage(currentPage + 1);
+        } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+          if (currentPage > 0) goToPage(currentPage - 1);
+        } else if (["0", "1", "2", "3", "4", "5"].includes(e.key)) {
+          goToPage(parseInt(e.key, 10));
+        } else if (e.key.toLowerCase() === "c") {
+          goToPage(0);
+        }
+      });
+
+      // Scroll Spy for Continuous Mode
+      window.addEventListener("scroll", () => {
+        if (isPagedMode) return;
+        const scrollPosition = window.scrollY + window.innerHeight / 3;
+        for (let i = 0; i < pages.length; i++) {
+          const page = pages[i];
+          const top = page.offsetTop;
+          const bottom = top + page.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < bottom) {
+            const pageNum = parseInt(page.getAttribute("data-page"), 10);
+            if (pageNum !== currentPage) {
+              currentPage = pageNum;
+              pillButtons.forEach((btn) => {
+                const target = parseInt(btn.getAttribute("data-target"), 10);
+                btn.classList.toggle("active", target === currentPage);
+              });
+              if (prevBtn) prevBtn.disabled = currentPage === 0;
+              if (nextBtn) nextBtn.disabled = currentPage === TOTAL_PAGES;
+              if (progressBar) {
+                progressBar.style.width = Math.max(10, Math.round((currentPage / TOTAL_PAGES) * 100)) + "%";
+              }
+            }
+            break;
+          }
+        }
+      });
+
+      // Print / Save as PDF handler
+      if (printBtn) {
+        printBtn.addEventListener("click", () => {
+          // Pre-print: ensure all pages are rendered cleanly
+          window.print();
+        });
+      }
+
+      // Initial state setup
+      updateUI(0);
+    })();
+  </script>
+</body>
+</html>
